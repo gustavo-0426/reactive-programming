@@ -8,11 +8,11 @@
 		<version>2.2.2.RELEASE</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.udemy</groupId>
-	<artifactId>reactiva</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-	<name>reactiva</name>
-	<description>Project programacion reactiva con spring webFlux</description>
+	<groupId>com.co.softworld</groupId>
+	<artifactId>reactive-programming</artifactId>
+	<version>1.0.0</version>
+	<name>reactive-programming</name>
+	<description>Project reactive-programming with spring webFlux</description>
 
 	<properties>
 		<java.version>1.8</java.version>
