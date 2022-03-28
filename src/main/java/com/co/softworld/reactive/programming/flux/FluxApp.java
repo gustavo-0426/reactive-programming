@@ -5,6 +5,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class FluxApp {
@@ -85,10 +87,21 @@ public class FluxApp {
      * Los flux son de tipo inmutable, es decir no cambia su valor.
      * Por lo tanto cuando se utiliza numbers.filter, no cambia el valor de numbers
      */
-    public static void fluxInmutable(){
+    public static void fluxInmutable() {
         Flux<String> numbers = Flux.just("one", "two", "three");
         numbers.filter(number -> number.startsWith("t"));
 
         numbers.subscribe(log::info);
+    }
+
+    public static void fluxFromList() {
+        List<String> letters = Arrays.asList("A", "B", "C", "D");
+        Flux<String> flux = Flux.fromIterable(letters);
+
+        Flux<String> result = flux
+                .filter(let -> let.startsWith("A"));
+
+        result.subscribe(log::info);
+
     }
 }
