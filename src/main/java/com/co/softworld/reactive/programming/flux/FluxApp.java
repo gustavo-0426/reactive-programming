@@ -14,6 +14,13 @@ public class FluxApp {
 
     private static final Logger log = LoggerFactory.getLogger(FluxApp.class);
 
+    public static Flux<User> getFluxObject() {
+        return Flux.just(
+                new User(1, "Gustavo", "Castro"),
+                new User(2, "Martin", "Castro"),
+                new User(3, "Maye", "Sierra"));
+    }
+    
     public static Flux<String> getFlux() {
         return Flux.just("Gustavo", "Martin", "maye");
     }
@@ -110,6 +117,9 @@ public class FluxApp {
 
     }
 
+    /**
+     * El flatMap retorna un observable de tipo flux o mono solamente.
+     */
     public static void fluxFlatMap() {
         Flux<String> flux = getFlux();
         Flux<String> result = flux.flatMap(name -> {
@@ -136,5 +146,13 @@ public class FluxApp {
                 .map(user -> user.getName());
 
         result.subscribe(log::info);
+    }
+
+    public static void fluxToMono() {
+        Mono<List<User>> flux = getFluxObject()
+                .filter(user -> user.getLastName().equalsIgnoreCase("Castro"))
+                .collectList();
+
+        flux.subscribe(user -> log.info(user.toString()));
     }
 }

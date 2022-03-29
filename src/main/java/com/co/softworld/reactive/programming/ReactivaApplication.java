@@ -23,6 +23,7 @@ public class ReactivaApplication implements CommandLineRunner {
 		//FluxApp.fluxInmutable();
 		//FluxApp.fluxFromList();
 		//FluxApp.fluxFlatMap();
-		FluxApp.fluxFromObjectToString();
+		//FluxApp.fluxFromObjectToString();
+		FluxApp.fluxToMono();
 	}
 }
