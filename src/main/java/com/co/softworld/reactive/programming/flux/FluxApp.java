@@ -4,6 +4,7 @@ import com.co.softworld.reactive.programming.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.Arrays;
 import java.util.List;
@@ -12,6 +13,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class FluxApp {
 
     private static final Logger log = LoggerFactory.getLogger(FluxApp.class);
+
+    public static Flux<String> getFlux() {
+        return Flux.just("Gustavo", "Martin", "maye");
+    }
 
     public static void fluxString() {
 
@@ -103,5 +108,33 @@ public class FluxApp {
 
         result.subscribe(log::info);
 
+    }
+
+    public static void fluxFlatMap() {
+        Flux<String> flux = getFlux();
+        Flux<String> result = flux.flatMap(name -> {
+            if (name.toLowerCase().startsWith("ma")) {
+                return Mono.just(name);
+            } else {
+                return Mono.empty();
+            }
+        });
+
+        result.subscribe(log::info);
+    }
+
+    public static void fluxFromObjectToString() {
+        List<User> names = Arrays.asList(
+                new User(1, "Gustavo", "Castro"),
+                new User(2, "Martin", "Castro"),
+                new User(3, "Maye", "Sierra"));
+        Flux<User> flux = Flux.fromIterable(names);
+
+        Flux<String> result = flux
+                .filter(user -> user.getLastName().equalsIgnoreCase("Castro"))
+                .flatMap(user -> Mono.just(user))
+                .map(user -> user.getName());
+
+        result.subscribe(log::info);
     }
 }
