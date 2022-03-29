@@ -24,6 +24,8 @@ public class ReactivaApplication implements CommandLineRunner {
 		//FluxApp.fluxFromList();
 		//FluxApp.fluxFlatMap();
 		//FluxApp.fluxFromObjectToString();
-		FluxApp.fluxToMono();
+		//FluxApp.fluxToMono();
+		//FluxApp.fluxWithTwoMono();
+		FluxApp.fluxWithTwoFlux();
 	}
 }

@@ -1,6 +1,8 @@
 package com.co.softworld.reactive.programming.flux;
 
+import com.co.softworld.reactive.programming.model.Comment;
 import com.co.softworld.reactive.programming.model.User;
+import com.co.softworld.reactive.programming.model.UserComment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
@@ -14,13 +16,19 @@ public class FluxApp {
 
     private static final Logger log = LoggerFactory.getLogger(FluxApp.class);
 
-    public static Flux<User> getFluxObject() {
+    public static Flux<Comment> getFluxComment() {
+        return Flux.just(
+                new Comment("This is the first comment"),
+                new Comment("This is the second comment"));
+    }
+
+    public static Flux<User> getFluxUser() {
         return Flux.just(
                 new User(1, "Gustavo", "Castro"),
                 new User(2, "Martin", "Castro"),
                 new User(3, "Maye", "Sierra"));
     }
-    
+
     public static Flux<String> getFlux() {
         return Flux.just("Gustavo", "Martin", "maye");
     }
@@ -118,7 +126,7 @@ public class FluxApp {
     }
 
     /**
-     * El flatMap retorna un observable de tipo flux o mono solamente.
+     * El flatMap retorna un observable de tipo flux o mono.
      */
     public static void fluxFlatMap() {
         Flux<String> flux = getFlux();
@@ -149,10 +157,36 @@ public class FluxApp {
     }
 
     public static void fluxToMono() {
-        Mono<List<User>> flux = getFluxObject()
+        Mono<List<User>> flux = getFluxUser()
                 .filter(user -> user.getLastName().equalsIgnoreCase("Castro"))
                 .collectList();
 
         flux.subscribe(user -> log.info(user.toString()));
     }
+
+    public static User createUser(int id, String name, String lastName) {
+        return new User(id, name, lastName);
+    }
+
+    public static Comment createComment(String description) {
+        return new Comment(description);
+    }
+
+    public static void fluxWithTwoMono() {
+        Mono<User> monoUser = Mono.fromCallable(() -> createUser(1, "Gustavo", "Castro"));
+        Mono<Comment> monoComment = Mono.fromCallable(() -> createComment("First comment"));
+
+        monoUser.flatMap(user -> monoComment.map(comment -> new UserComment(user, comment)))
+                .subscribe(data -> log.info(data.toString()));
+    }
+
+    public static void fluxWithTwoFlux() {
+        Flux<User> fluxUser = getFluxUser();
+        Flux<Comment> fluxComment = getFluxComment();
+
+        fluxUser.flatMap(user -> fluxComment.map(comment -> new UserComment(user, comment)))
+                .subscribe(data -> log.info(data.toString()));
+    }
+
+
 }
