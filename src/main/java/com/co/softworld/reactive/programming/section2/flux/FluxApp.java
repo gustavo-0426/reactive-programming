@@ -1,8 +1,8 @@
-package com.co.softworld.reactive.programming.flux;
+package com.co.softworld.reactive.programming.section2.flux;
 
-import com.co.softworld.reactive.programming.model.Comment;
-import com.co.softworld.reactive.programming.model.User;
-import com.co.softworld.reactive.programming.model.UserComment;
+import com.co.softworld.reactive.programming.section2.model.Comment;
+import com.co.softworld.reactive.programming.section2.model.User;
+import com.co.softworld.reactive.programming.section2.model.UserComment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
@@ -185,6 +185,43 @@ public class FluxApp {
         Flux<Comment> fluxComment = getFluxComment();
 
         fluxUser.flatMap(user -> fluxComment.map(comment -> new UserComment(user, comment)))
+                .subscribe(data -> log.info(data.toString()));
+    }
+
+    public static void zipWith() {
+        Flux<User> fluxUser = getFluxUser();
+        Flux<Comment> fluxComment = getFluxComment();
+
+        fluxUser.zipWith(fluxComment, (user, commentary) -> new UserComment(user, commentary))
+                .subscribe(data -> log.info(data.toString()));
+    }
+
+    public static void zipWithFormTuple() {
+        Flux<User> fluxUser = getFluxUser();
+        Flux<Comment> fluxComment = getFluxComment();
+
+        fluxUser.zipWith(fluxComment)
+                .map(tuple -> {
+                    User user = tuple.getT1();
+                    Comment comment = tuple.getT2();
+                    return new UserComment(user, comment);
+                })
+                .subscribe(data -> log.info(data.toString()));
+    }
+
+    public static void fluxRange() {
+        Flux<Integer> fluxRange = Flux.range(0, 5);
+        Flux.just(2, 4, 6, 8)
+                .map(number -> number * 3)
+                .zipWith(fluxRange)
+                .subscribe(data -> log.info(data.toString()));
+    }
+
+    public static void fluxRange2() {
+        Flux<Integer> fluxRange = Flux.range(4, 4);
+        Flux.just(1, 2, 3, 4, 5)
+                .map(number -> number * 2)
+                .zipWith(fluxRange)
                 .subscribe(data -> log.info(data.toString()));
     }
 

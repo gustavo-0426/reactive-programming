@@ -1,15 +1,15 @@
 package com.co.softworld.reactive.programming;
 
-import com.co.softworld.reactive.programming.flux.FluxApp;
+import com.co.softworld.reactive.programming.section2.flux.FluxApp;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class ReactivaApplication implements CommandLineRunner {
+public class ReactiveApplication implements CommandLineRunner {
 
 	public static void main(String[] args) {
-		SpringApplication.run(ReactivaApplication.class, args);
+		SpringApplication.run(ReactiveApplication.class, args);
 	}
 
 	@Override
@@ -26,6 +26,10 @@ public class ReactivaApplication implements CommandLineRunner {
 		//FluxApp.fluxFromObjectToString();
 		//FluxApp.fluxToMono();
 		//FluxApp.fluxWithTwoMono();
-		FluxApp.fluxWithTwoFlux();
+		//FluxApp.fluxWithTwoFlux();
+		//FluxApp.zipWith();
+		//FluxApp.zipWithFormTuple();
+		FluxApp.fluxRange();
+		FluxApp.fluxRange2();
 	}
 }
