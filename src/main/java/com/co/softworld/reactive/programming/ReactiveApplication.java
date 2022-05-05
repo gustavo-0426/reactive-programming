@@ -33,6 +33,7 @@ public class ReactiveApplication implements CommandLineRunner {
 		//FluxApp.fluxRange2();
 		//FluxApp.fluxInterval();
 		//FluxApp.fluxDelayElement();
-		FluxApp.fluxDelayElementInfinitive();
+		//FluxApp.fluxDelayElementInfinitive();
+		FluxApp.fluxCreate();
 	}
 }
