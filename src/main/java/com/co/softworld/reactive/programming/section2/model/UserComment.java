@@ -1,4 +1,4 @@
-package com.co.softworld.reactive.programming.model;
+package com.co.softworld.reactive.programming.section2.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

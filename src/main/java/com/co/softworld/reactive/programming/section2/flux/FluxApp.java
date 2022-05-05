@@ -1,8 +1,8 @@
-package com.co.softworld.reactive.programming.flux;
+package com.co.softworld.reactive.programming.section2.flux;
 
-import com.co.softworld.reactive.programming.model.Comment;
-import com.co.softworld.reactive.programming.model.User;
-import com.co.softworld.reactive.programming.model.UserComment;
+import com.co.softworld.reactive.programming.section2.model.Comment;
+import com.co.softworld.reactive.programming.section2.model.User;
+import com.co.softworld.reactive.programming.section2.model.UserComment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;

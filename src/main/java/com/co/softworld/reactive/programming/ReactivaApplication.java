@@ -1,6 +1,6 @@
 package com.co.softworld.reactive.programming;
 
-import com.co.softworld.reactive.programming.flux.FluxApp;
+import com.co.softworld.reactive.programming.section2.flux.FluxApp;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
