@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -225,5 +226,21 @@ public class FluxApp {
                 .subscribe(data -> log.info(data.toString()));
     }
 
+    public static void fluxInterval() {
+        Flux<Integer> fluxRange = Flux.range(1, 4);
+        Flux<Long> fluxInterval = Flux.interval(Duration.ofSeconds(1));
+        fluxRange
+                .zipWith(fluxInterval, (range, interval) -> range)
+                .doOnNext(range -> log.info(String.valueOf(range)))
+                .blockLast();
+    }
+
+    public static void fluxDelayElement() {
+        Flux<Integer> fluxRange = Flux.range(1, 4);
+        fluxRange
+                .delayElements(Duration.ofSeconds(1))
+                .doOnNext(range -> log.info(String.valueOf(range)))
+                .blockLast();
+    }
 
 }
