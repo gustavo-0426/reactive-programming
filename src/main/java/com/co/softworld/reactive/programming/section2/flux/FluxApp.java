@@ -11,6 +11,7 @@ import reactor.core.publisher.Mono;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class FluxApp {
@@ -241,6 +242,23 @@ public class FluxApp {
                 .delayElements(Duration.ofSeconds(1))
                 .doOnNext(range -> log.info(String.valueOf(range)))
                 .blockLast();
+    }
+
+    public static void fluxDelayElementInfinitive() throws InterruptedException {
+        CountDownLatch count = new CountDownLatch(1);
+
+        Flux.interval(Duration.ofSeconds(1))
+                .doOnTerminate(count::countDown)
+                .flatMap(data -> {
+                    if (data == 8 )
+                        return Flux.error(new InterruptedException("must not be greater than 8"));
+                    return Flux.just(data);
+                })
+                .map(data -> String.valueOf(data))
+                .retry(1)
+                .subscribe(log::info, error -> log.error(error.getMessage()));
+
+        count.await();
     }
 
 }
