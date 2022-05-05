@@ -11,6 +11,8 @@ import reactor.core.publisher.Mono;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -250,7 +252,7 @@ public class FluxApp {
         Flux.interval(Duration.ofSeconds(1))
                 .doOnTerminate(count::countDown)
                 .flatMap(data -> {
-                    if (data == 8 )
+                    if (data == 8)
                         return Flux.error(new InterruptedException("must not be greater than 8"));
                     return Flux.just(data);
                 })
@@ -259,6 +261,30 @@ public class FluxApp {
                 .subscribe(log::info, error -> log.error(error.getMessage()));
 
         count.await();
+    }
+
+    public static void fluxCreate() {
+        Flux.create(create -> {
+                    Timer timer = new Timer();
+                    timer.schedule(new TimerTask() {
+
+                        private int count = 1;
+
+                        @Override
+                        public void run() {
+                            create.next(count++);
+                            if (count == 4) {
+                                timer.cancel();
+                                create.complete();
+                            }
+
+                        }
+                    }, 500, 1000);
+                })
+                .map(data -> String.valueOf(data))
+                .subscribe(log::info,
+                        error -> log.error(error.getMessage()),
+                        () -> log.info(("completed")));
     }
 
 }
