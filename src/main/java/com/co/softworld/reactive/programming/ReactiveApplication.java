@@ -29,7 +29,9 @@ public class ReactiveApplication implements CommandLineRunner {
 		//FluxApp.fluxWithTwoFlux();
 		//FluxApp.zipWith();
 		//FluxApp.zipWithFormTuple();
-		FluxApp.fluxRange();
-		FluxApp.fluxRange2();
+		//FluxApp.fluxRange();
+		//FluxApp.fluxRange2();
+		//FluxApp.fluxInterval();
+		FluxApp.fluxDelayElement();
 	}
 }
