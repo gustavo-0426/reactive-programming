@@ -8,7 +8,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
 public class User {
     private int id;
     private String name;

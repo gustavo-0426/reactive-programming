@@ -3,10 +3,9 @@ package com.co.softworld.reactive.programming.section2.flux;
 import com.co.softworld.reactive.programming.section2.model.Comment;
 import com.co.softworld.reactive.programming.section2.model.User;
 import com.co.softworld.reactive.programming.section2.model.UserComment;
+import lombok.extern.slf4j.Slf4j;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -18,195 +17,134 @@ import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.co.softworld.reactive.programming.section2.constants.IConstants.*;
+
+@Slf4j
 public class FluxApp {
 
-    private static final Logger log = LoggerFactory.getLogger(FluxApp.class);
+    List<User> userList = Arrays.asList(new User(1, GUSTAVO, CASTRO), new User(2, MARTIN, CASTRO), new User(3, MAYE, SIERRA));
 
-    public static Flux<Comment> getFluxComment() {
-        return Flux.just(
-                new Comment("This is the first comment"),
-                new Comment("This is the second comment"));
+    public void fluxString() {
+        log.info("fluxString...");
+        Flux.just(MARTIN, MAYE)
+                .doOnNext(log::info)
+                .subscribe();
     }
 
-    public static Flux<User> getFluxUser() {
-        return Flux.just(
-                new User(1, "Gustavo", "Castro"),
-                new User(2, "Martin", "Castro"),
-                new User(3, "Maye", "Sierra"));
-    }
-
-    public static Flux<String> getFlux() {
-        return Flux.just("Gustavo", "Martin", "maye");
-    }
-
-    public static void fluxString() {
-
-        Flux<String> name = Flux.just("Gustavo", "Martin", "Maye")
-                .doOnNext(log::info);
-
-        name.subscribe();
-    }
-
-    public static void fluxException() {
-
-        Flux<String> names = Flux.just("Gustavo", "Martin", "", "Maye")
-                .doOnNext(name -> {
-                    if (name.isEmpty())
-                        throw new RuntimeException("name is empty");
-                    System.out.println(name);
+    public void fluxException() {
+        log.info("fluxException...");
+        Flux<String> flux = lastName
+                .doOnNext(lastName -> {
+                    if (lastName.isEmpty())
+                        throw new RuntimeException("lastName is empty");
                 });
-
-        names.subscribe(log::debug,
-                error -> {
-                    log.error(error.getMessage());
-                });
+        flux.subscribe(log::info,
+                error -> log.error(error.getMessage()));
     }
 
-    public static void fluxOnCompleted() {
-
-        Flux<String> names = Flux.just("Gustavo", "Martin", "Maye")
-                .doOnNext(name -> {
-                    if (name.isEmpty())
-                        throw new RuntimeException("name is empty");
-                    System.out.println(name);
-                });
-
-        names.subscribe(log::debug,
-                error -> {
-                    log.error(error.getMessage());
-                },
+    public void fluxOnCompleted() {
+        log.info("fluxOnCompleted...");
+        lastName.subscribe(log::info,
+                error -> log.error(error.getMessage()),
                 () -> log.info("completed"));
     }
 
-    public static void fluxMap() {
-
-        Flux<String> names = Flux.just("Gustavo", "Martin", "Maye")
-                .doOnNext(System.out::println)
-                .map(va -> va.toUpperCase());
-
-        names.subscribe(log::info);
+    public void fluxMap() {
+        log.info("fluxMap...");
+        lastName.map(String::toUpperCase)
+                .subscribe(log::info);
     }
 
-    public static void fluxFilter() {
-
-        Flux<String> names = Flux.just("Gustavo", "Martin", "Maye")
-                .doOnNext(System.out::println)
-                .map(name -> name.toUpperCase())
-                .filter(name -> name.startsWith("MA"));
-
-        names.subscribe(log::info);
+    public void fluxFilter() {
+        log.info("fluxFilter...");
+        lastName.map(String::toUpperCase)
+                .filter(data -> data.startsWith("S"))
+                .subscribe(log::info);
     }
 
-    public static void fluxObject() {
-
+    public void fluxObject() {
+        log.info("fluxObject...");
         AtomicInteger n = new AtomicInteger(0);
-        Flux<User> user = Flux.just("Gustavo", "Martin", "Maye")
-                .doOnNext((u) -> n.getAndIncrement())
-                .map(name -> new User(n.get(), name, ""));
-
-        user.subscribe(us -> {
-            log.info(us.getId() + " ".concat(us.getName()).concat(" ").concat(us.getLastName()));
-        });
+        lastName.doOnNext(u -> n.getAndIncrement())
+                .map(data -> new User(n.get(), "", data))
+                .subscribe(us -> log.info(us.getId() + " ".concat(us.getName()).concat(" ").concat(us.getLastName())));
     }
 
     /**
-     * Los flux son de tipo inmutable, es decir no cambia su valor.
-     * Por lo tanto cuando se utiliza numbers.filter, no cambia el valor de numbers
+     * The flux are immutable, because its value does not change.
      */
-    public static void fluxInmutable() {
-        Flux<String> numbers = Flux.just("one", "two", "three");
-        numbers.filter(number -> number.startsWith("t"));
-
-        numbers.subscribe(log::info);
+    public void fluxImmutable() {
+        log.info("fluxImmutable...");
+        lastName.filter(number -> number.startsWith("C"));
+        lastName.subscribe(log::info);
     }
 
-    public static void fluxFromList() {
+    public void fluxFromList() {
+        log.info("fluxFromList...");
         List<String> letters = Arrays.asList("A", "B", "C", "D");
-        Flux<String> flux = Flux.fromIterable(letters);
-
-        Flux<String> result = flux
-                .filter(let -> let.startsWith("A"));
-
-        result.subscribe(log::info);
-
+        Flux.fromIterable(letters)
+                .filter(let -> let.startsWith("A"))
+                .subscribe(log::info);
     }
 
     /**
-     * El flatMap retorna un observable de tipo flux o mono.
+     * The flatMap return an observable of type flux or mono.
      */
-    public static void fluxFlatMap() {
-        Flux<String> flux = getFlux();
-        Flux<String> result = flux.flatMap(name -> {
-            if (name.toLowerCase().startsWith("ma")) {
-                return Mono.just(name);
+    public void fluxFlatMap() {
+        log.info("fluxFlatMap...");
+        lastName.flatMap(lastName -> {
+            if (lastName.toLowerCase().startsWith("s")) {
+                return Mono.just(lastName);
             } else {
                 return Mono.empty();
             }
-        });
-
-        result.subscribe(log::info);
+        }).subscribe(log::info);
     }
 
-    public static void fluxFromObjectToString() {
-        List<User> names = Arrays.asList(
-                new User(1, "Gustavo", "Castro"),
-                new User(2, "Martin", "Castro"),
-                new User(3, "Maye", "Sierra"));
-        Flux<User> flux = Flux.fromIterable(names);
-
-        Flux<String> result = flux
-                .filter(user -> user.getLastName().equalsIgnoreCase("Castro"))
-                .flatMap(user -> Mono.just(user))
-                .map(user -> user.getName());
-
-        result.subscribe(log::info);
+    public void fluxFromListObjectToString() {
+        log.info("fluxFromListObjectToString...");
+        Flux.fromIterable(userList)
+                .filter(use -> use.getLastName().equalsIgnoreCase(CASTRO))
+                .flatMap(Mono::just)
+                .map(User::getName)
+                .subscribe(log::info);
     }
 
-    public static void fluxToMono() {
-        Mono<List<User>> flux = getFluxUser()
-                .filter(user -> user.getLastName().equalsIgnoreCase("Castro"))
-                .collectList();
-
-        flux.subscribe(user -> log.info(user.toString()));
+    public void fluxToMono() {
+        log.info("fluxToMono...");
+        Flux.fromIterable(userList)
+                .filter(us -> us.getLastName().equalsIgnoreCase(CASTRO))
+                .collectList()
+                .subscribe(users -> log.info(users.toString()));
     }
 
-    public static User createUser(int id, String name, String lastName) {
-        return new User(id, name, lastName);
-    }
+    public void fluxWithTwoMono() {
+        log.info("fluxWithTwoMono...");
+        Mono<User> monoUser = Mono.fromCallable(() -> new User(1, GUSTAVO, CASTRO));
+        Mono<Comment> monoComment = Mono.fromCallable(() -> new Comment("First comment"));
 
-    public static Comment createComment(String description) {
-        return new Comment(description);
-    }
-
-    public static void fluxWithTwoMono() {
-        Mono<User> monoUser = Mono.fromCallable(() -> createUser(1, "Gustavo", "Castro"));
-        Mono<Comment> monoComment = Mono.fromCallable(() -> createComment("First comment"));
-
-        monoUser.flatMap(user -> monoComment.map(comment -> new UserComment(user, comment)))
+        monoUser.flatMap(us -> monoComment.map(comment -> new UserComment(us, comment)))
                 .subscribe(data -> log.info(data.toString()));
     }
 
-    public static void fluxWithTwoFlux() {
-        Flux<User> fluxUser = getFluxUser();
-        Flux<Comment> fluxComment = getFluxComment();
-
-        fluxUser.flatMap(user -> fluxComment.map(comment -> new UserComment(user, comment)))
+    public void fluxWithTwoFlux() {
+        log.info("fluxWithTwoFlux...");
+        Flux.fromIterable(userList)
+                .flatMap(user -> comment.map(comment -> new UserComment(user, comment)))
                 .subscribe(data -> log.info(data.toString()));
     }
 
-    public static void zipWith() {
-        Flux<User> fluxUser = getFluxUser();
-        Flux<Comment> fluxComment = getFluxComment();
-
-        fluxUser.zipWith(fluxComment, (user, commentary) -> new UserComment(user, commentary))
+    public void zipWith() {
+        log.info("zipWith...");
+        Flux.fromIterable(userList)
+                .zipWith(comment, UserComment::new)
                 .subscribe(data -> log.info(data.toString()));
     }
 
-    public static void zipWithFormTuple() {
-        Flux<User> fluxUser = getFluxUser();
-        Flux<Comment> fluxComment = getFluxComment();
-
-        fluxUser.zipWith(fluxComment)
+    public void zipWithFormTuple() {
+        log.info("zipWithFormTuple...");
+        Flux.fromIterable(userList)
+                .zipWith(comment)
                 .map(tuple -> {
                     User user = tuple.getT1();
                     Comment comment = tuple.getT2();
@@ -215,57 +153,50 @@ public class FluxApp {
                 .subscribe(data -> log.info(data.toString()));
     }
 
-    public static void fluxRange() {
+    public void fluxRange() {
+        log.info("fluxRange...");
         Flux<Integer> fluxRange = Flux.range(0, 5);
-        Flux.just(2, 4, 6, 8)
-                .map(number -> number * 3)
+        numbers.map(number -> number * 3)
                 .zipWith(fluxRange)
                 .subscribe(data -> log.info(data.toString()));
     }
 
-    public static void fluxRange2() {
-        Flux<Integer> fluxRange = Flux.range(4, 4);
-        Flux.just(1, 2, 3, 4, 5)
-                .map(number -> number * 2)
-                .zipWith(fluxRange)
-                .subscribe(data -> log.info(data.toString()));
-    }
-
-    public static void fluxInterval() {
-        Flux<Integer> fluxRange = Flux.range(1, 4);
-        Flux<Long> fluxInterval = Flux.interval(Duration.ofSeconds(1));
-        fluxRange
+    public void fluxInterval() {
+        log.info("fluxInterval...");
+        Flux<Long> fluxInterval = Flux.interval(Duration.ofMillis(300));
+        Flux.range(1, 4)
                 .zipWith(fluxInterval, (range, interval) -> range)
                 .doOnNext(range -> log.info(String.valueOf(range)))
                 .blockLast();
     }
 
-    public static void fluxDelayElement() {
-        Flux<Integer> fluxRange = Flux.range(1, 4);
-        fluxRange
-                .delayElements(Duration.ofSeconds(1))
+    public void fluxDelayElement() {
+        log.info("fluxDelayElement...");
+        Flux.range(1, 4)
+                .delayElements(Duration.ofMillis(300))
                 .doOnNext(range -> log.info(String.valueOf(range)))
                 .blockLast();
     }
 
-    public static void fluxDelayElementInfinitive() throws InterruptedException {
+    public void fluxDelayElementInfinitive() throws InterruptedException {
+        log.info("fluxDelayElementInfinitive...");
         CountDownLatch count = new CountDownLatch(1);
-
-        Flux.interval(Duration.ofSeconds(1))
+        Flux.interval(Duration.ofMillis(300))
                 .doOnTerminate(count::countDown)
                 .flatMap(data -> {
-                    if (data == 8)
+                    if (data == 5) {
                         return Flux.error(new InterruptedException("must not be greater than 8"));
+                    }
                     return Flux.just(data);
                 })
-                .map(data -> String.valueOf(data))
+                .map(String::valueOf)
                 .retry(1)
                 .subscribe(log::info, error -> log.error(error.getMessage()));
-
         count.await();
     }
 
-    public static void fluxCreate() {
+    public void fluxCreate() {
+        log.info("fluxCreate...");
         Flux.create(create -> {
                     Timer timer = new Timer();
                     timer.schedule(new TimerTask() {
@@ -283,49 +214,51 @@ public class FluxApp {
                         }
                     }, 500, 1000);
                 })
-                .map(data -> String.valueOf(data))
+                .map(String::valueOf)
                 .subscribe(log::info,
                         error -> log.error(error.getMessage()),
                         () -> log.info(("completed")));
     }
 
-    public static void backPressure() {
+    public void backPressure() {
+        log.info("backPressure...");
         Flux.range(1, 5)
                 .log()
                 .subscribe(new Subscriber<Integer>() {
                     private Subscription subscription;
-                    private int limit = 2;
+                    private static final int LIMIT = 2;
                     private int init = 0;
 
                     @Override
                     public void onSubscribe(Subscription subscription) {
                         this.subscription = subscription;
-                        subscription.request(limit);
+                        subscription.request(LIMIT);
                     }
 
                     @Override
                     public void onNext(Integer integer) {
                         log.info(String.valueOf(integer));
                         init++;
-                        if (init == limit) {
+                        if (init == LIMIT) {
                             init = 0;
-                            subscription.request(limit);
+                            subscription.request(LIMIT);
                         }
                     }
 
                     @Override
                     public void onError(Throwable throwable) {
-
+                        log.error(throwable.getMessage());
                     }
 
                     @Override
                     public void onComplete() {
-
+                        log.info("onComplete");
                     }
                 });
     }
 
-    public static void backPressure2() {
+    public void backPressure2() {
+        log.info("backPressure2...");
         Flux.range(1, 5)
                 .log()
                 .limitRate(2)
