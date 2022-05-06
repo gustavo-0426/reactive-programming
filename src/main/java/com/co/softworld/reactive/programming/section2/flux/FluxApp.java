@@ -3,6 +3,8 @@ package com.co.softworld.reactive.programming.section2.flux;
 import com.co.softworld.reactive.programming.section2.model.Comment;
 import com.co.softworld.reactive.programming.section2.model.User;
 import com.co.softworld.reactive.programming.section2.model.UserComment;
+import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
@@ -285,6 +287,49 @@ public class FluxApp {
                 .subscribe(log::info,
                         error -> log.error(error.getMessage()),
                         () -> log.info(("completed")));
+    }
+
+    public static void backPressure() {
+        Flux.range(1, 5)
+                .log()
+                .subscribe(new Subscriber<Integer>() {
+                    private Subscription subscription;
+                    private int limit = 2;
+                    private int init = 0;
+
+                    @Override
+                    public void onSubscribe(Subscription subscription) {
+                        this.subscription = subscription;
+                        subscription.request(limit);
+                    }
+
+                    @Override
+                    public void onNext(Integer integer) {
+                        log.info(String.valueOf(integer));
+                        init++;
+                        if (init == limit) {
+                            init = 0;
+                            subscription.request(limit);
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable throwable) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+    }
+
+    public static void backPressure2() {
+        Flux.range(1, 5)
+                .log()
+                .limitRate(2)
+                .subscribe(data -> log.info(String.valueOf(data)));
     }
 
 }
