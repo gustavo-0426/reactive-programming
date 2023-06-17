@@ -1,4 +1,4 @@
-package com.co.softworld.reactive.programming.model;
+package com.co.softworld.reactive.programming.section2.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -8,7 +8,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
 public class User {
     private int id;
     private String name;
